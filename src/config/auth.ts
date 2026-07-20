@@ -31,10 +31,6 @@ export const auth = betterAuth({
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
 
-    accout: { 
-      skipStateCookieCheck: true,
-      
-    }
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days

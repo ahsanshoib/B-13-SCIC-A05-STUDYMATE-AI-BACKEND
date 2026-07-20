@@ -3,16 +3,9 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { MongoClient } from "mongodb";
 import { env } from "./env";
 
-// Better Auth's mongodbAdapter needs a connected native `mongodb` driver
-// Db instance (separate from the mongoose connection used elsewhere in the
-// app). We connect eagerly here; connectDB() in db.ts still owns the
-// mongoose connection used by all Mongoose models.
 const client = new MongoClient(env.MONGODB_URI);
 void client.connect();
 
-// Fall back to "studymate-ai" if the connection string doesn't specify a
-// database name (e.g. a bare Atlas SRV URI) — client.db() with no argument
-// throws in that case instead of picking a sane default.
 const db = client.db(env.MONGODB_URI.split("/").pop()?.split("?")[0] || "studymate-ai");
 
 export const auth = betterAuth({
@@ -30,11 +23,10 @@ export const auth = betterAuth({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
-
   },
   session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24, // refresh once per day
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60,

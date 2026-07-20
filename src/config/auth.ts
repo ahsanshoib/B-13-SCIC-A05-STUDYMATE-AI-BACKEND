@@ -3,7 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { MongoClient } from "mongodb";
 import { env } from "./env";
 
-// Better Auth's mongodbAdapter needs a connected native mongodb driver
+// Better Auth's mongodbAdapter needs a connected native `mongodb` driver
 // Db instance (separate from the mongoose connection used elsewhere in the
 // app). We connect eagerly here; connectDB() in db.ts still owns the
 // mongoose connection used by all Mongoose models.
@@ -32,8 +32,8 @@ export const auth = betterAuth({
     },
   },
   session: {
-    expiresIn: 60 * 60 * 24 * 7,
-    updateAge: 60 * 60 * 24,
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // refresh once per day
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60,
@@ -56,8 +56,8 @@ export const auth = betterAuth({
     crossSubDomainCookies: { enabled: false },
     useSecureCookies: env.NODE_ENV === "production",
     defaultCookieAttributes: {
-      sameSite: "none",
-      secure: true,
+      sameSite: env.NODE_ENV === "production" ? "none" : "lax",
+      secure: env.NODE_ENV === "production",
     },
   },
 });

@@ -43,6 +43,7 @@ export const listResources = async (query: ListResourcesQuery) => {
 };
 
 export const listMyResources = async (ownerId: string) => {
+  if (!ownerId) return [];
   return ResourceModel.find({ ownerId }).sort({ createdAt: -1 }).lean();
 };
 
@@ -66,14 +67,21 @@ export const getRelatedResources = async (id: string) => {
 };
 
 export const createResource = async (
-  data: CreateResourceInput,
-  owner: { id: string; name: string }
+  data: CreateResourceInput & { ownerId?: string },
+  owner: { id?: string; name?: string }
 ) => {
+  //  owner.id   data.ownerId       ID      
+  const resolvedOwnerId = owner?.id || data?.ownerId;
+
+  if (!resolvedOwnerId) {
+    throw ApiError.unauthorized("Authentication token or user ID is missing.");
+  }
+
   return ResourceModel.create({
     ...data,
     imageUrl: data.imageUrl || undefined,
-    ownerId: owner.id,
-    ownerName: owner.name,
+    ownerId: resolvedOwnerId,
+    ownerName: owner?.name || "Anonymous",
   });
 };
 

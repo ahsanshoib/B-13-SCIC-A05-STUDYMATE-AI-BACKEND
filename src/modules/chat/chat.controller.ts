@@ -7,8 +7,9 @@ import { SendMessageInput } from "./chat.validation";
 export const postSendMessageStream = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) throw ApiError.unauthorized();
 
+  const userId = req.user.uid || req.user.id;
   const { conversationId, message } = req.body as SendMessageInput;
-  const conversation = await chatService.getOrCreateConversation(req.user.id, conversationId);
+  const conversation = await chatService.getOrCreateConversation(userId, conversationId);
 
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
@@ -17,13 +18,12 @@ export const postSendMessageStream = asyncHandler(async (req: Request, res: Resp
     "X-Accel-Buffering": "no",
   });
 
-  // Let the client know which conversation this stream belongs to
-  // immediately, so a first-time chat can start rendering under the right ID.
+ 
   res.write(`event: init\ndata: ${JSON.stringify({ conversationId: conversation._id })}\n\n`);
 
   try {
     const { suggestedFollowUps } = await chatService.streamChatReply(
-      req.user.id,
+      userId,
       conversation,
       message,
       (chunk) => {
@@ -42,18 +42,24 @@ export const postSendMessageStream = asyncHandler(async (req: Request, res: Resp
 
 export const getConversations = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) throw ApiError.unauthorized();
-  const conversations = await chatService.listConversations(req.user.id);
+  const userId = req.user.uid || req.user.id;
+  
+  const conversations = await chatService.listConversations(userId);
   res.status(200).json({ success: true, conversations });
 });
 
 export const getConversation = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) throw ApiError.unauthorized();
-  const conversation = await chatService.getConversationById(req.user.id, req.params.id);
+  const userId = req.user.uid || req.user.id;
+
+  const conversation = await chatService.getConversationById(userId, req.params.id);
   res.status(200).json({ success: true, conversation });
 });
 
 export const removeConversation = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) throw ApiError.unauthorized();
-  await chatService.deleteConversation(req.user.id, req.params.id);
+  const userId = req.user.uid || req.user.id;
+
+  await chatService.deleteConversation(userId, req.params.id);
   res.status(200).json({ success: true, message: "Conversation deleted" });
 });

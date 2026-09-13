@@ -12,7 +12,8 @@ export const getResources = asyncHandler(async (req: Request, res: Response) => 
 
 export const getMyResources = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) throw ApiError.unauthorized();
-  const items = await resourceService.listMyResources(req.user.id);
+  const userId = req.user.uid || req.user.id;
+  const items = await resourceService.listMyResources(userId);
   res.status(200).json({ success: true, items });
 });
 
@@ -27,24 +28,43 @@ export const getRelated = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const postResource = asyncHandler(async (req: Request, res: Response) => {
-  if (!req.user) throw ApiError.unauthorized();
+  if (!req.user && !req.body.ownerId) {
+    throw ApiError.unauthorized("Authentication required");
+  }
+
+  // req.user   req.body   ID  
+  const userId = req.user?.uid || req.user?.id || req.body.ownerId;
+  const userName = req.user?.name || req.user?.displayName || req.user?.email || "Anonymous";
+
   const data = req.body as CreateResourceInput;
-  const resource = await resourceService.createResource(data, {
-    id: req.user.id,
-    name: req.user.name,
+
+  //  Explicitly combine validated data with ownerId
+  const resourceData = {
+    ...data,
+    ownerId: userId,
+  };
+
+  const resource = await resourceService.createResource(resourceData, {
+    id: userId,
+    name: userName,
   });
+
   res.status(201).json({ success: true, resource });
 });
 
 export const patchResource = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) throw ApiError.unauthorized();
+  const userId = req.user.uid || req.user.id;
+
   const data = req.body as UpdateResourceInput;
-  const resource = await resourceService.updateResource(req.params.id, data, req.user.id);
+  const resource = await resourceService.updateResource(req.params.id, data, userId);
   res.status(200).json({ success: true, resource });
 });
 
 export const removeResource = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) throw ApiError.unauthorized();
-  await resourceService.deleteResource(req.params.id, req.user.id);
+  const userId = req.user.uid || req.user.id;
+
+  await resourceService.deleteResource(req.params.id, userId);
   res.status(200).json({ success: true, message: "Resource deleted" });
 });

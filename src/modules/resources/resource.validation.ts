@@ -14,6 +14,7 @@ export const createResourceSchema = z.object({
     .max(6000, "Maximum 6000 minutes"),
   tags: z.array(z.string().trim().min(1)).max(10, "Up to 10 tags").default([]),
   imageUrl: z.string().trim().url("Enter a valid URL").optional().or(z.literal("")),
+  ownerId: z.string().optional(), //  Zod   ownerId      
 });
 
 export const updateResourceSchema = createResourceSchema.partial();

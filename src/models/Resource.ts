@@ -30,8 +30,15 @@ const resourceSchema = new Schema<ResourceDocument>(
       set: (tags: string[]) => tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean),
     },
     imageUrl: { type: String, trim: true },
-    ownerId: { type: String, required: true, index: true },
-    ownerName: { type: String, required: true },
+    ownerId: { 
+      type: String, 
+      required: true, 
+      index: true,
+      default: function(this: any) {
+        return this._ownerIdFallback || "unknown_user";
+      }
+    },
+    ownerName: { type: String, required: true, default: "Anonymous" },
   },
   { timestamps: true }
 );

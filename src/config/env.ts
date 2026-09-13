@@ -8,10 +8,13 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   CLIENT_URL: z.string().url(),
   MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
-  BETTER_AUTH_SECRET: z.string().min(16, "BETTER_AUTH_SECRET must be at least 16 characters"),
-  BETTER_AUTH_URL: z.string().url(),
-  GOOGLE_CLIENT_ID: z.string().min(1),
-  GOOGLE_CLIENT_SECRET: z.string().min(1),
+  
+  // Firebase Admin Credentials
+  FIREBASE_PROJECT_ID: z.string().min(1, "FIREBASE_PROJECT_ID is required"),
+  FIREBASE_CLIENT_EMAIL: z.string().email("FIREBASE_CLIENT_EMAIL must be a valid email"),
+  FIREBASE_PRIVATE_KEY: z.string().min(1, "FIREBASE_PRIVATE_KEY is required"),
+
+  // Gemini AI & System Settings
   GEMINI_API_KEY: z.string().min(1, "GEMINI_API_KEY is required"),
   GEMINI_MODEL: z.string().default("gemini-1.5-flash"),
   RATE_LIMIT_WINDOW_MS: z.string().default("900000"),
@@ -31,10 +34,9 @@ export const env = {
   NODE_ENV: parsed.data.NODE_ENV,
   CLIENT_URL: parsed.data.CLIENT_URL,
   MONGODB_URI: parsed.data.MONGODB_URI,
-  BETTER_AUTH_SECRET: parsed.data.BETTER_AUTH_SECRET,
-  BETTER_AUTH_URL: parsed.data.BETTER_AUTH_URL,
-  GOOGLE_CLIENT_ID: parsed.data.GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET: parsed.data.GOOGLE_CLIENT_SECRET,
+  FIREBASE_PROJECT_ID: parsed.data.FIREBASE_PROJECT_ID,
+  FIREBASE_CLIENT_EMAIL: parsed.data.FIREBASE_CLIENT_EMAIL,
+  FIREBASE_PRIVATE_KEY: parsed.data.FIREBASE_PRIVATE_KEY,
   GEMINI_API_KEY: parsed.data.GEMINI_API_KEY,
   GEMINI_MODEL: parsed.data.GEMINI_MODEL,
   RATE_LIMIT_WINDOW_MS: Number(parsed.data.RATE_LIMIT_WINDOW_MS),

@@ -5,10 +5,9 @@ import morgan from "morgan";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
-import { toNodeHandler } from "better-auth/node";
-import { auth } from "@config/auth";
 import { env } from "@config/env";
 import { notFoundHandler, errorHandler } from "@middlewares/error.middleware";
+import { attachSession } from "@middlewares/auth.middleware"; 
 import apiRoutes from "./routes";
 
 export const createApp = (): Application => {
@@ -18,7 +17,7 @@ export const createApp = (): Application => {
   app.use(helmet());
   app.use(
     cors({
-      origin: env.CLIENT_URL,
+      origin: env.CLIENT_URL || "https://b-13-scic-a05-studymate-ai-frontend.vercel.app" ,
       credentials: true,
     })
   );
@@ -33,12 +32,12 @@ export const createApp = (): Application => {
   });
   app.use("/api", limiter);
 
-  // Better Auth must be mounted BEFORE express.json() body parser
-  app.all("/api/auth/*", toNodeHandler(auth));
-
   app.use(express.json({ limit: "2mb" }));
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
+
+  
+  app.use(attachSession);
 
   app.get("/health", (_req, res) => {
     res.status(200).json({ success: true, message: "StudyMate AI API is healthy" });

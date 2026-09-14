@@ -27,9 +27,12 @@ export const getRelated = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({ success: true, items });
 });
 
+const DEMO_EMAIL = "demo@studymate.ai";
+
 export const postResource = asyncHandler(async (req: Request, res: Response) => {
-  if (!req.user && !req.body.ownerId) {
-    throw ApiError.unauthorized("Authentication required");
+  if (!req.user) throw ApiError.unauthorized();
+  if (req.user.email !== DEMO_EMAIL) {
+    throw ApiError.forbidden("Only the demo account can add resources in this preview.");
   }
 
   // req.user   req.body   ID  
@@ -38,16 +41,17 @@ export const postResource = asyncHandler(async (req: Request, res: Response) => 
 
   const data = req.body as CreateResourceInput;
 
-  //  Explicitly combine validated data with ownerId
-  const resourceData = {
-    ...data,
-    ownerId: userId,
-  };
+  // //  Explicitly combine validated data with ownerId
+  // const resourceData = {
+  //   ...data,
+  //   ownerId: userId,
+  // };
 
-  const resource = await resourceService.createResource(resourceData, {
-    id: userId,
-    name: userName,
+  const resource = await resourceService.createResource(data, {
+    id: req.user.id,
+    name: req.user.name,
   });
+
 
   res.status(201).json({ success: true, resource });
 });

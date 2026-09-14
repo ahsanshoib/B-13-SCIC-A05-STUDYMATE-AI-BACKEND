@@ -8,7 +8,7 @@
     "build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "start": "node dist/server.js",
     "lint": "eslint src --ext .ts",
-    "seed:demo": "ts-node -r tsconfig-paths/register src/scripts/seedDemoUser.ts"
+  "seed:admin": "ts-node -r tsconfig-paths/register src/scripts/seedAdminUser.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.17.0",

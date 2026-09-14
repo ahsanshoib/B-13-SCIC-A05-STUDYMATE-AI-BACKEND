@@ -1,5 +1,16 @@
 export const SUBJECTS = [
-
+  "Mathematics",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Computer Science",
+  "Economics",
+  "Statistics",
+  "English Literature",
+  "History",
+  "Psychology",
+  "Accounting",
+  "Electrical Engineering",
   "Mechanical Engineering",
   "Civil Engineering",
   "Chemical Engineering",
